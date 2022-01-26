@@ -3,6 +3,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Internal
+
+def temp_in(t):
+    return 20 + 345*np.log10(8*t + 1) # 3.4
+def temp_ex(t):
+    return 660*(1 - 0.687*np.e**(-0.32*t) - 0.313*np.e**(-3.8*t)) + 20 # 3.5
+
 # Inputs
 
 # Time
@@ -18,12 +25,6 @@ tc = 3e-3 # m
 #Webs
 dw = 10e-3 # m
 
-# Internal
-
-def temp_in(t):
-    return 20 + 345*np.log10(8*t + 1) # 3.4
-def temp_ex(t):
-    return 660*(1 - 0.687*np.e**(-0.32*t) - 0.313*np.e**(-3.8*t)) + 20 # 3.5
 
 print('Max External temerature of {:.0f} {}C'.format(temp_ex(tm), degree_sign))
 print('-----------------')
