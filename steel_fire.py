@@ -7,10 +7,8 @@
 import math
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from plotly.subplots import make_subplots
 import plotly.graph_objs as go
-import plotly.express as px
 
 # -----------------------------------------------------------------------------------------------
 # INPUT PARAMETERS
@@ -19,8 +17,8 @@ t_min = 120  # Fire duration [min]
 dt_sec = 5  # Time step [sec]
 
 # MATERIAL USED
-mat = 'steel'
-# mat = 'aluminum'
+# mat = 'steel'
+mat = 'aluminum'
 
 if mat == 'steel':
     density = 7850  # Steel density [kg/m3]
@@ -34,10 +32,10 @@ else:
 CS = 'I'
 
 # I-type cross-section dimensions
-b = 180  # Flange width [mm]
-h = 400  # Web height [mm]
-tf = 13.5  # Flange thickness [mm]
-tw = 8.6  # Web thickness [mm]
+h = 160  # Web height [mm]
+b = 86  # Flange width [mm]
+tf = 5  # Flange thickness [mm]
+tw = 4  # Web thickness [mm]
 
 # CHS-type cross section dimensions
 d_out = 100  # Outer diameter [mm]
@@ -49,7 +47,7 @@ t_shs = 13  # Wall thicknes [mm]
 
 # PROTECTION COATING DATA
 dp = 30  # Thickness [mm]
-l_p = 0.25  # Thermal conductivity [W/m.K]
+l_p = 0.7  # Thermal conductivity [W/m.K]
 
 # EMISSIVITY DATA
 ef = 1  # Emissivity of the fire
@@ -70,9 +68,9 @@ elif CS == 'SHS':
     ksh = 1  # Shadow effect correction factor for SHS cross section
 elif CS == 'I':
     A = 2 * b * tf + (h - 2 * tf) * tw  # Cross-sectional area for I-type cross section [mm2]
-    P = 2 * h + b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
+    P = 2 * h + 2 * b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
     Am_V = P / A  # Section factor for I-type cross section [m^-1]
-    Pb = 2 * h + b  # Heated perimeter of "box" for I-type cross section
+    Pb = 2 * h + 2 * b  # Heated perimeter of "box" for I-type cross section
     Am_Vb = Pb / A  # Section factor of "box" for I-type cross section [m^-1]
     ksh = min(0.9 * Am_Vb / Am_V, 1)  # Shadow effect correction factor for I-type cross section
 
@@ -98,6 +96,7 @@ dth_m = 0  # Initial value for the surface temperature increment
 
 def specific_heat(t):
     if mat == 'steel':
+        # J/kg C - Specific heat of steel - 3.4.1.2
         if th_m <= 600:
             c = 425 + 7.73 * 10 ** -1 * th_m - 1.69 * 10 ** -3 * t ** 2 + 2.22 * 10 ** -6 * t ** 3
         elif th_m <= 735:
@@ -117,9 +116,11 @@ def specific_heat(t):
 step_results_unprot = []
 
 for t in np.arange(0, t_min * 60, dt_sec):
+    # EN 1999-1-2 (4.10)
     factor = ksh * Am_V * 1000 * dt_sec / (specific_heat(th_m) * density)
+    # EN 1991-1-2 (3.1)
     h_net_c = alpha_c * (standard_curve(t / 60) - th_m)
-    h_net_r = phi * ef * em * sigma * ((standard_curve(t / 60) + 273) ** 4 - (th_m + 273) ** 4)
+    h_net_r = phi * em * ef * sigma * ((standard_curve(t / 60) + 273) ** 4 - (th_m + 273) ** 4)
 
     th_m += dth_m
     dth_m = factor * (h_net_c + h_net_r)
