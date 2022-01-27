@@ -1,209 +1,228 @@
+# STRUCTURAL ANALYSIS OF CROSS-SECTION SUBJECTED TO FIRE LOAD
+# ACCORDING TO BS EN 1991-1-2
+# AUTHOR: ELEFTHERIA TSALAMEGKA
+# DATE: 25/01/2022
+
+
 import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from plotly.subplots import make_subplots
+import plotly.graph_objs as go
+import plotly.express as px
 
-# Internal
+# ----------------------------------------------------------------------------------------------------------------------
+# INPUT PARAMETERS
+# FIRE EVENT DURATION
+t_min = 120  # Fire duration [min]
+dt_sec = 5  # Time step [sec]
 
-def temp_in(t):
-    return 20 + 345*np.log10(8*t + 1) # 3.4
-def temp_ex(t):
-    return 660*(1 - 0.687*np.e**(-0.32*t) - 0.313*np.e**(-3.8*t)) + 20 # 3.5
+# MATERIAL USED
+mat = 'steel'
+# mat = 'aluminum'
 
-# Inputs
+if mat == 'steel':
+    density = 7850  # Steel density [kg/m3]
+else:
+    density = 2700  # Aluminum density [kg/m3]
 
-# Time
-tm = 60 # min - Assumed, better make it 120 min
-degree_sign = u'\N{DEGREE SIGN}'
-tms = np.arange(0., tm, 1)
+# CROSS-SECTION GEOMETRY
+# Cross section type
+# CS = 'SHS'
+# CS = 'CHS'
+CS = 'I'
 
-# Geometry
-# Chords
-section_type = 'CHS'
-dc = 30e-3 # m
-tc = 3e-3 # m
-#Webs
-dw = 10e-3 # m
+# I-type cross-section dimensions
+b = 180  # Flange width [mm]
+h = 400  # Web height [mm]
+tf = 13.5  # Flange thickness [mm]
+tw = 8.6  # Web thickness [mm]
 
+# CHS-type cross section dimensions
+d_out = 100  # Outer diameter [mm]
+t_chs = 13  # Wall thicknes [mm]
 
-print('Max External temerature of {:.0f} {}C'.format(temp_ex(tm), degree_sign))
-print('-----------------')
-print('Max Internal temerature of {:.0f} {}C'.format(temp_in(tm), degree_sign))
+# SHS-type cross section dimensions
+b_out = 100  # Outer diameter [mm]
+t_shs = 13  # Wall thicknes [mm]
 
-plt.plot(tms, temp_in(tms), 'r--',tms, temp_ex(tms), 'b')
-plt.legend(['Internat', 'External'])
-plt.title('Temperature action')
-plt.xlabel('t (min)')
-plt.ylabel('T {}C'.format(degree_sign))
-plt.show()
+# PROTECTION COATING DATA
+dp = 30  # Thickness [mm]
+l_p = 0.25  # Thermal conductivity [W/m.K]
 
-def temp_unprot(section_type, tc, t_dur, temp_type, dt=5, th_m=20, Phi = 1.0, eps_m = 0.8, eps_f = 1.0,
-                alp_c=25, ro_al=2700, sig=5.67e-8):
-    """ Unprotected internal aluminium members BS EN 1999-1-2 (4.10)
-    
-    Parameters
-    ----------
-    section_type : str
-        Only CHS supported
-    tc : float
-        Thickness of tube
-    t_dur : float (min)
-        The time duration
-    temp_type : function
-        External or internal fire
-    dt : float (s)
-        The time step (default is 5)
-    th_m : flobal (Cels)
-        The initial material temperature
-    Phi: float
-        The configuration factor (default is 1.0 - corresponding to fully developed fire)
-    eps_m: float
-        The surface emissivity of the member (default is 1.0 from NOTE1)
-    eps_f: float
-        The emissivity of the fire
-    alp_c: float (W/m2.K)
-        The coefficient of heat transfer (default is 25 for convection (3.4))
-    ro_al: float (kg/m3)
-        The density of aluminium (default is 2700)
-    sig: float (W/m2.K4)
-        The Stephan Boltzmann constant (default is 5.67e-8)
-        
-    Returns
-    --------
-    list
-        of time
-    list
-        of temperautres
-    
-    """
-    Am_V = 1. / tc # Table 3
-    Am_Vb = 1. / tc
-    k_sh = min(0.9 * Am_Vb/Am_V, 1.0)
-    if section_type == 'CHS' or section_type == 'RHS' or section_type == 'SHS':
-        k_sh = 1.0
+# EMISSIVITY DATA
+ef = 1  # Emissivity of the fire
+em = 0.8  # Surface emissivity of the member
+phi = 1  # Configuration factor
+alpha_c = 25  # Coefficient of heat transfer by convection [W/m^2*K]
+sigma = 5.67 * 10 ** -8  # Stephan Boltzmann constant [W/m^2*K^4]
+th_ambient = 20  # Ambient temperature [C]
 
-    header = ['t (sec)', 't (min)', 'th_g (deg)', 'th_m (deg)', 'c_al (J/kg.K)', 'dth_m (Cel)']
-    data = []
-    ts = 0  # sec - time
-    ts_s = np.arange(0, t_dur*60, dt)
+# ----------------------------------------------------------------------------------------------------------------------
 
-    # Initial temperature
-    th_ms = []
-    for ts in ts_s:
-        # BS EN 1991-1-2
-        tm = ts/60 # min = time
-        c_al = 0.41*th_m + 903 # J/kg C - Specifi heat of aluminium - 3.3.1.2 
-        th_g = temp_type(tm)
-        h_net_c = alp_c * (th_g - th_m) # (3.2)
-        h_net_r = Phi * eps_m * eps_f * sig * ((th_g + 273)**4 - (th_m + 273)**4) # (3.3)
-        h_net = h_net_c + h_net_r # (3.1) - W/m2
-
-        dth_m = k_sh * 1. / (c_al * ro_al) * Am_V * h_net * dt # 4.10
-        th_ms.append(th_m)
-        data.append([ts, tm, th_g, th_m, c_al, dth_m])
-
-        th_m += dth_m
-        ts += dt
-    
-    df = pd.DataFrame(data, columns=header)
-    return ts_s, np.array(th_ms)
-
-ts_s, th_ms = temp_unprot('CHS', tc, tm, temp_in)
-plt.plot(tms, temp_in(tms), 'r', ts_s/60, th_ms, '--r')
-ts_s, th_ms = temp_unprot('CHS', tc, tm, temp_ex)
-plt.plot(tms, temp_ex(tms), 'b', ts_s/60, th_ms, '--b')
-
-plt.legend(['Internat load', 'Internal temp', 'External load', 'External temp'])
-plt.title('Temperature action')
-plt.xlabel('t (min)')
-plt.ylabel('T {}C'.format(degree_sign))
-plt.show()
+# GEOMETRICAL CALCULATIONS
+if CS == 'CHS':
+    Am_V = 1 / t_chs  # Section factor for CHS cross section [m^-1]
+    ksh = 1  # Shadow effect correction factor for CHS cross section
+elif CS == 'SHS':
+    Am_V = 1 / t_shs  # Section factor for SHS cross section [m^-1]
+    ksh = 1  # Shadow effect correction factor for SHS cross section
+elif CS == 'I':
+    A = 2 * b * tf + (h - 2 * tf) * tw  # Cross-sectional area for I-type cross section [mm2]
+    P = 2 * h + b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
+    Am_V = P / A  # Section factor for I-type cross section [m^-1]
+    Pb = 2 * h + b  # Heated perimeter of "box" for I-type cross section
+    Am_Vb = Pb / A  # Section factor of "box" for I-type cross section [m^-1]
+    ksh = min(0.9 * Am_Vb / Am_V, 1)  # Shadow effect correction factor for I-type cross section
 
 
-def temp_prot(section_type, tc, t_dur, temp_type, c_p = 1200, lam_p = 0.1, dp = 40e-3, ro_p = 900, dt=30, th_m=20, ro_al=2700):
-    """ Unprotected internal aluminium members BS EN 1999-1-2 (4.10)
-
-    Parameters
-    ----------
-    section_type : str
-        Only CHS supported
-    tc : float
-        Thickness of tube
-    t_dur : float (min)
-        The time duration
-    temp_type : function
-        External or internal fire
-    c_p : float (J/kg.K)
-        The specific heat of the fire protection material (default = 1200)
-    lam_p : float (W/m.K)
-        The thermal conductivity of the fire protection material (default = 0.1)
-    dp : float (m)
-        The thickness of the fire protection material
-    ro_p : float (kg/m3)
-        The density of the fire protection material
-    dt : float (s)
-        The time step (default is 5)
-    th_m : flobal (Cels)
-        The initial material temperature
-    ro_al: float (kg/m3)
-        The density of aluminium (default is 2700)
-
-    Returns
-        List of time and temperature
-    --------
-    """
-    Ap_V = 1. / tc # Table 3
-
-    header = ['t (sec)', 't (min)', 'th_g (deg)', 'th_m (deg)', 'c_al (J/kg.K)', 'phi', 'dth_m (Cel)']
-    data = []
-    ts = 0  # sec - time
-    ts_s = np.arange(0, t_dur*60, dt)
-
-    # Initial temperature
-    th_ms = []
-    dth = 0
-    for ts in ts_s:
-        # BS EN 1991-1-2
-        tm = ts/60 # min = time
-        c_al = 0.41*th_m + 903 # J/kg C - Specifi heat of aluminium - 3.3.1.2
-        th_g = temp_type(tm)
-
-        # BS EN 1999-1-2
-        phi = c_p*ro_p*dp/(c_al*ro_al)*Ap_V # (4.14)
-
-        dth_m = Ap_V*lam_p/(dp*c_al*ro_al)*(th_g - th_m)/(1+phi/3)*dt - (math.e**(phi/10) -1)*dth # (4.13)
-        dth_m = max(dth_m, 0)
-        th_ms.append(th_m)
-        data.append([ts, tm, th_g, th_m, c_al, phi, dth_m])
-
-        dth = temp_type(tm + dt/60) - th_g
-        th_m += dth_m
-        ts += dt
-
-    df = pd.DataFrame(data, columns=header)
-    return ts_s, np.array(th_ms)
-
-ts_s, th_ms = temp_prot('CHS', tc, tm, temp_in)
-plt.plot(tms, temp_in(tms), 'r', ts_s/60, th_ms, '--r')
-print(th_ms[-1])
-ts_s, th_ms = temp_prot('CHS', tc, tm, temp_ex)
-print(th_ms[-1])
-plt.plot(tms, temp_ex(tms), 'b', ts_s/60, th_ms, '--b')
-
-plt.legend(['Internat load', 'Internal temp', 'External load', 'External temp'])
-plt.title('Temperature action')
-plt.xlabel('t (min)')
-plt.ylabel('T {}C'.format(degree_sign))
-plt.show()
+# ----------------------------------------------------------------------------------------------------------------------
+# TEMPERATURE-TIME FIRE CURVES
 
 
+def standard_curve(t):
+    return 20 + 345 * np.log10(8 * t + 1)  # EN 1991-1-2, eqn.(3.4)
 
-"""
-Solution
-Use intumescent paint with the following thermal propoerties:
-Thermal conductivity lam_p <= 0.1 W/(m.K)
-Specifit heat: c_p >= 1200 J/kg.K
-Desity: ro_p >= 900 kg/m3
-Uniform thickness: d_p >= 40mm
-This was we loose less than 35% of strength (see Table 1a) and less than 14# of Elastic modulues (see Table 2)
-"""
+
+def external_curve(t):
+    return 660 * (1 - 0.687 * np.e ** (-0.32 * t) - 0.313 * np.e ** (-3.8 * t)) + 20  # EN 1991-1-2 (2002), eqn.(3.5)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# SPECIFIC HEAT
+
+th_m = th_ambient  # Initial value for the surface temperature
+dth_m = 0  # Initial value for the surface temperature increment
+
+
+def specific_heat(t):
+    if mat == 'steel':
+        if th_m <= 600:
+            c = 425 + 7.73 * 10 ** -1 * th_m - 1.69 * 10 ** -3 * t ** 2 + 2.22 * 10 ** -6 * t ** 3
+        elif th_m <= 735:
+            c = 666 + (13002 / (738 - t))
+        elif th_m <= 900:
+            c = 545 + (17820 / (t - 731))
+        else:
+            c = 650
+    else:
+        c = 0.41 * t + 903  # J/kg C - Specific heat of aluminium - 3.3.1.2
+    return c
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ANALYSIS OF UNPROTECTED SECTION
+
+step_results_unprot = []
+
+for t in np.arange(0, t_min * 60, dt_sec):
+    factor = ksh * Am_V * 1000 * dt_sec / (specific_heat(th_m) * density)
+    h_net_c = alpha_c * (standard_curve(t / 60) - th_m)
+    h_net_r = phi * ef * em * sigma * ((standard_curve(t / 60) + 273) ** 4 - (th_m + 273) ** 4)
+
+    th_m += dth_m
+    dth_m = factor * (h_net_c + h_net_r)
+
+    step_results_unprot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m])
+
+    results_unprot = pd.DataFrame(step_results_unprot,
+                                  columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
+
+print(results_unprot)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ANALYSIS OF PROTECTED SECTION
+
+th_m = th_ambient  # Initial value for the surface temperature
+dth_m = 0  # Initial value for the surface temperature increment
+
+step_results_prot = []
+
+for t in np.arange(0, t_min * 60, dt_sec):
+    th_m += dth_m
+
+    dth_m = Am_V * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density) * (
+                standard_curve(t / 60) - th_m) * dt_sec
+
+    step_results_prot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m])
+
+    results_prot = pd.DataFrame(step_results_prot,
+                                columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
+
+print(results_prot)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# PLOTTING
+
+# Protected case
+fig1 = go.Figure()
+fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θg [C]'], name="θg"))
+fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θm [C]'], name="θm"))
+fig1.update_layout(
+    title="Unprotected Cross-Section",
+    xaxis_title="Time [min]",
+    yaxis_title="Temperature [C]")
+fig1.show()
+
+# Unprotected Case
+fig2 = go.Figure()
+fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θg [C]'], name="θg"))
+fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θm [C]'], name="θm"))
+fig2.update_layout(
+    title="Protected Cross-Section",
+    xaxis_title="Time [min]",
+    yaxis_title="Temperature [C]")
+fig2.show()
+
+# Collected
+fig3 = go.Figure()
+fig3.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θg [C]'], name="Standard Fire Curve"))
+fig3.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θm [C]'], name="Protected Member Temperature"))
+fig3.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θm [C]'],
+                          name="Unprotected Member Temperature"))
+fig3.update_layout(
+    title="Temperature-Time Curves",
+    xaxis_title="Time [min]",
+    yaxis_title="Temperature [C]")
+fig3.show()
+
+# Subplots
+fig4 = make_subplots(rows=1, cols=2, shared_yaxes=True,
+                     subplot_titles=("Unprotected Cross-Section", "Protected Cross-Section"))
+
+# Subplot 1
+# Temperature range subplot / Nominal WTs
+fig4.append_trace(go.Scatter(
+    x=results_unprot['Time [min]'],
+    y=results_unprot['θg [C]'],
+    mode='lines', line=dict(color="#636EFA"),
+    name='Standard Temperature Fire Curve'), row=1, col=1)
+
+# Temperature range subplot / Calculated WTs
+fig4.append_trace(go.Scatter(
+    x=results_unprot['Time [min]'],
+    y=results_unprot['θm [C]'],
+    mode='lines', line=dict(color="#636EFA", dash='dash'),
+    name='Protected Member Temperature'), row=1, col=1)
+
+fig4.append_trace(go.Scatter(
+    x=results_prot['Time [min]'],
+    y=results_prot['θg [C]'],
+    mode='lines', line=dict(color="#EF553B"),
+    name='Standard Temperature Fire Curve'), row=1, col=2)
+
+# Temperature range subplot / Calculated WTs
+fig4.append_trace(go.Scatter(
+    x=results_prot['Time [min]'],
+    y=results_prot['θm [C]'],
+    mode='lines', line=dict(color="#EF553B", dash='dash'),
+    name='Unprotected Member Temperature'), row=1, col=2)
+
+fig4['layout']['yaxis']['title'] = 'Temperature [C]'
+fig4['layout']['xaxis']['title'] = 'Time [min]'
+fig4['layout']['xaxis2']['title'] = 'Time [min]'
+fig4.update_layout(title_text="Temperature-Time Curves")
+
+fig4.show()
+# ----------------------------------------------------------------------------------------------------------------------
