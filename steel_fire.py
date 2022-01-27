@@ -17,8 +17,7 @@ t_min = 120  # Fire duration [min]
 dt_sec = 5  # Time step [sec]
 
 # MATERIAL USED
-# mat = 'steel'
-mat = 'aluminum'
+mat = 'steel'
 
 if mat == 'steel':
     density = 7850  # Steel density [kg/m3]
@@ -32,10 +31,10 @@ else:
 CS = 'I'
 
 # I-type cross-section dimensions
-h = 160  # Web height [mm]
-b = 86  # Flange width [mm]
-tf = 5  # Flange thickness [mm]
-tw = 4  # Web thickness [mm]
+h = 400  # Web height [mm]
+b = 180  # Flange width [mm]
+tf = 13.5  # Flange thickness [mm]
+tw = 8.6  # Web thickness [mm]
 
 # CHS-type cross section dimensions
 d_out = 100  # Outer diameter [mm]
@@ -47,7 +46,9 @@ t_shs = 13  # Wall thicknes [mm]
 
 # PROTECTION COATING DATA
 dp = 30  # Thickness [mm]
-l_p = 0.7  # Thermal conductivity [W/m.K]
+l_p = 0.15  # Thermal conductivity [W/m.K]
+c_p = 1200  # Specific heat of the fire protection material [J/kg.K]
+ro_p = 800  # Density of the protection material [kg/m^3]
 
 # EMISSIVITY DATA
 ef = 1  # Emissivity of the fire
@@ -68,9 +69,9 @@ elif CS == 'SHS':
     ksh = 1  # Shadow effect correction factor for SHS cross section
 elif CS == 'I':
     A = 2 * b * tf + (h - 2 * tf) * tw  # Cross-sectional area for I-type cross section [mm2]
-    P = 2 * h + 2 * b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
+    P = 2 * h +  b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
     Am_V = P / A  # Section factor for I-type cross section [m^-1]
-    Pb = 2 * h + 2 * b  # Heated perimeter of "box" for I-type cross section
+    Pb = 2 * h + b  # Heated perimeter of "box" for I-type cross section
     Am_Vb = Pb / A  # Section factor of "box" for I-type cross section [m^-1]
     ksh = min(0.9 * Am_Vb / Am_V, 1)  # Shadow effect correction factor for I-type cross section
 
@@ -135,16 +136,17 @@ print(results_unprot)
 # -----------------------------------------------------------------------------------------------
 # ANALYSIS OF PROTECTED SECTION
 
-th_m = th_ambient  # Initial value for the surface temperature
-dth_m = 0  # Initial value for the surface temperature increment
-
 step_results_prot = []
-
+dth = 0
 for t in np.arange(0, t_min * 60, dt_sec):
+    # EN 1999-1-2 (4.14, 4.13)
+    phi_ = (c_p*ro_p)/(specific_heat(th_m)*density)*dp*Am_Vb
+    dth_m = Am_V * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density) * (
+            standard_curve(t / 60) - th_m) / (1 + phi_ / 3) * dt_sec - (math.e ** (phi_ / 10) - 1) * dth
+    dt = specific_heat()
+    dth_m = max(dth_m, 0)
     th_m += dth_m
 
-    dth_m = Am_V * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density) * (
-                standard_curve(t / 60) - th_m) * dt_sec
 
     step_results_prot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m])
 
