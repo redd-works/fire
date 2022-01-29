@@ -7,18 +7,20 @@
 import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from plotly.subplots import make_subplots
 import plotly.graph_objs as go
+import plotly.express as px
 
-# -----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # INPUT PARAMETERS
 # FIRE EVENT DURATION
 t_min = 120  # Fire duration [min]
-dt_sec = 5  # Time step [sec]
+dt_sec = 30  # Time step [sec]
 
 # MATERIAL USED
-# mat = 'steel'
-mat = 'aluminum'
+mat = 'steel'
+# mat = 'aluminum'
 
 if mat == 'steel':
     density = 7850  # Steel density [kg/m3]
@@ -32,10 +34,10 @@ else:
 CS = 'I'
 
 # I-type cross-section dimensions
-h = 160  # Web height [mm]
-b = 86  # Flange width [mm]
-tf = 5  # Flange thickness [mm]
-tw = 4  # Web thickness [mm]
+b = 180  # Flange width [mm]
+h = 400  # Web height [mm]
+tf = 13.5  # Flange thickness [mm]
+tw = 8.6  # Web thickness [mm]
 
 # CHS-type cross section dimensions
 d_out = 100  # Outer diameter [mm]
@@ -45,9 +47,21 @@ t_chs = 13  # Wall thicknes [mm]
 b_out = 100  # Outer diameter [mm]
 t_shs = 13  # Wall thicknes [mm]
 
+# Protection coating type
+# prot_type = 'paint_coating'
+prot_type = 'fibcem_coating'
+
+if prot_type == 'paint_coating':
 # PROTECTION COATING DATA
-dp = 30  # Thickness [mm]
-l_p = 0.7  # Thermal conductivity [W/m.K]
+    dp_coat = 30  # Thickness [mm]
+    l_p_coat = 0.25  # Thermal conductivity [W/m.K]
+elif prot_type == 'fibcem_coating':
+    dp = 20  # Thickness [mm]
+    hp = 400  # Protective board height [mm]
+    bp = 180  # Protective board width [mm]
+    l_p = 0.15  # Thermal conductivity [W/m.K]
+    c_p = 1200  # Specific heat
+    density_p = 800  # Protective board density [kg/m3]
 
 # EMISSIVITY DATA
 ef = 1  # Emissivity of the fire
@@ -57,7 +71,7 @@ alpha_c = 25  # Coefficient of heat transfer by convection [W/m^2*K]
 sigma = 5.67 * 10 ** -8  # Stephan Boltzmann constant [W/m^2*K^4]
 th_ambient = 20  # Ambient temperature [C]
 
-# -----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
 # GEOMETRICAL CALCULATIONS
 if CS == 'CHS':
@@ -68,14 +82,20 @@ elif CS == 'SHS':
     ksh = 1  # Shadow effect correction factor for SHS cross section
 elif CS == 'I':
     A = 2 * b * tf + (h - 2 * tf) * tw  # Cross-sectional area for I-type cross section [mm2]
-    P = 2 * h + 2 * b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
+    P = 2 * h + b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
     Am_V = P / A  # Section factor for I-type cross section [m^-1]
-    Pb = 2 * h + 2 * b  # Heated perimeter of "box" for I-type cross section
+    Pb = 2 * h + b  # Heated perimeter of "box" for I-type cross section
     Am_Vb = Pb / A  # Section factor of "box" for I-type cross section [m^-1]
     ksh = min(0.9 * Am_Vb / Am_V, 1)  # Shadow effect correction factor for I-type cross section
 
+# Protective board geometrical dimensions
+if prot_type == 'fibcem_coating':
+    Am_V_protb = (2 * hp + bp) / A
 
-# -----------------------------------------------------------------------------------------------
+    print('Am_V_protb =', Am_V_protb)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 # TEMPERATURE-TIME FIRE CURVES
 
 
@@ -87,7 +107,7 @@ def external_curve(t):
     return 660 * (1 - 0.687 * np.e ** (-0.32 * t) - 0.313 * np.e ** (-3.8 * t)) + 20  # EN 1991-1-2 (2002), eqn.(3.5)
 
 
-# -----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # SPECIFIC HEAT
 
 th_m = th_ambient  # Initial value for the surface temperature
@@ -96,7 +116,6 @@ dth_m = 0  # Initial value for the surface temperature increment
 
 def specific_heat(t):
     if mat == 'steel':
-        # J/kg C - Specific heat of steel - 3.4.1.2
         if th_m <= 600:
             c = 425 + 7.73 * 10 ** -1 * th_m - 1.69 * 10 ** -3 * t ** 2 + 2.22 * 10 ** -6 * t ** 3
         elif th_m <= 735:
@@ -110,17 +129,15 @@ def specific_heat(t):
     return c
 
 
-# -----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # ANALYSIS OF UNPROTECTED SECTION
 
 step_results_unprot = []
 
 for t in np.arange(0, t_min * 60, dt_sec):
-    # EN 1999-1-2 (4.10)
     factor = ksh * Am_V * 1000 * dt_sec / (specific_heat(th_m) * density)
-    # EN 1991-1-2 (3.1)
     h_net_c = alpha_c * (standard_curve(t / 60) - th_m)
-    h_net_r = phi * em * ef * sigma * ((standard_curve(t / 60) + 273) ** 4 - (th_m + 273) ** 4)
+    h_net_r = phi * ef * em * sigma * ((standard_curve(t / 60) + 273) ** 4 - (th_m + 273) ** 4)
 
     th_m += dth_m
     dth_m = factor * (h_net_c + h_net_r)
@@ -130,9 +147,9 @@ for t in np.arange(0, t_min * 60, dt_sec):
     results_unprot = pd.DataFrame(step_results_unprot,
                                   columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
 
-print(results_unprot)
+# print(results_unprot)
 
-# -----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # ANALYSIS OF PROTECTED SECTION
 
 th_m = th_ambient  # Initial value for the surface temperature
@@ -140,20 +157,42 @@ dth_m = 0  # Initial value for the surface temperature increment
 
 step_results_prot = []
 
-for t in np.arange(0, t_min * 60, dt_sec):
-    th_m += dth_m
+if prot_type == 'paint_coating':
+    for t in np.arange(0, t_min * 60, dt_sec):
+        th_m += dth_m
 
-    dth_m = Am_V * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density) * (
+        dth_m = Am_V * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density) * (
                 standard_curve(t / 60) - th_m) * dt_sec
 
-    step_results_prot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m])
+        step_results_prot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m])
 
-    results_prot = pd.DataFrame(step_results_prot,
-                                columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
+        results_prot = pd.DataFrame(step_results_prot,
+                                    columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
+
+elif prot_type == 'fibcem_coating':
+
+    for t in np.arange(0, t_min * 60, dt_sec):
+
+        phi_factor = c_p * density_p * dp * Am_V_protb / (specific_heat(th_m) * density)
+
+        th_m += dth_m
+
+        step_results_prot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m, phi_factor])
+        results_prot = pd.DataFrame(step_results_prot,
+                                    columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]', 'φ'
+                                             ])
+
+        check = Am_V_protb * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density * (1+phi_factor/3)) * \
+                (standard_curve(t / 60) - th_m) * dt_sec - (np.exp(phi_factor / 10) - 1) * \
+                (standard_curve(t / 60 + dt_sec / 60) - standard_curve(t / 60))
+
+        if check > 0:
+            dth_m = check
+        else: dth_m = 0
 
 print(results_prot)
 
-# -----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # PLOTTING
 
 # Protected case
@@ -226,4 +265,4 @@ fig4['layout']['xaxis2']['title'] = 'Time [min]'
 fig4.update_layout(title_text="Temperature-Time Curves")
 
 fig4.show()
-# -----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
