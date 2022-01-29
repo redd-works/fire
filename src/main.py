@@ -3,18 +3,40 @@ import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
 import argparse
 from inputs import *
+import fire
+
+def interpolation(x, x1, x2, y1, y2):
+    return y1 + (y2-y1)/(x2-x1)*x
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='FEA of beam under fire')
-
 
     parser.add_argument(
         '-p', '--plot', type=bool,
         help=('Choose to plot or not the solution.'
               ' True/False'), default=False)
 
+    parser.add_argument(
+        '-f', '--fire', type=bool,
+        help=('Whether to include fire in the analysis'
+              ' True/False'), default=False)
     args = parser.parse_args()
+
+    if args.fire:
+        temp = fire.temp
+        temp1 = int(temp - temp%50)
+        temp2 = temp1 + 50
+        temp_diff = temp - temp1
+        f1 = fire.strength_red[temp1]
+        f2 = fire.strength_red[temp2]
+        f_red = interpolation(temp_diff, temp1, temp2, f1, f2)
+        fy *= f_red
+        E1 = fire.stiff_red[temp1]
+        E2 = fire.stiff_red[temp2]
+        E_red = interpolation(temp_diff, temp1, temp2, E1, E2)
+        E *= E_red
 
     # OpenSees model
     ops.wipe()
@@ -55,11 +77,11 @@ if __name__ == '__main__':
 
     ### Post-process
     disp = ops.nodeDisp(mid, 3)
-    Myy = ops.eleForce(mid, 4)
-    sig_ed = Myy*(h/2)/Iy
-    sig_rd = 200
     disp_e = 5/384*(w*Ly**4)/(E*Iy)
     print("Disp from fea: {:.3f} mm, hand calcs {:.3f} mm".format(disp, disp_e))
+    Myy = ops.eleForce(mid, 4)
+    stress = Myy*(h/2)/Iy
+    print("Stress utilization: {}".format(stress/fy))
 
     if args.plot:
         minY, maxY = opsv.section_force_diagram_3d('Vy', Ew, 1.)

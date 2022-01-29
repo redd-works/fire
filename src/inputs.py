@@ -1,6 +1,7 @@
 from scipy.constants import g
 
 # BS EN 1999-1-1: 3.2.5 Design values of material constants
+fy = 240 # MPa
 E = 70e3 # N/mm2
 G = 27e3 # N/mm2
 v = 0.3
@@ -34,3 +35,5 @@ w_G = w_self + w_sdl
 w_Q = 4 # kPa
 pres = 1.1*(w_G*y_G + 0.1*w_Q*y_Q)*(10**-3) # N/mm2 - (kN/m2 = 10^-3N/mm2) - 10% safty factor
 w = pres * Lx/2 # N/mm (= kN/m) - Uniformly distributed load
+
+

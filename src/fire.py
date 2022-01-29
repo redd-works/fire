@@ -11,12 +11,35 @@ import matplotlib.pyplot as plt
 from plotly.subplots import make_subplots
 import plotly.graph_objs as go
 import plotly.express as px
+import argparse
 
 # ----------------------------------------------------------------------------------------------------------------------
 # INPUT PARAMETERS
 # FIRE EVENT DURATION
 t_min = 60  # Fire duration [min]
-dt_sec = 1  # Time step [sec]
+dt_sec = 5  # Time step [sec]
+
+# For 6061 T6
+strength_red = { 20 : 1.00,
+                100 : 0.95,
+                150 : 0.91,
+                200 : 0.79,
+                250 : 0.55,
+                300 : 0.31,
+                350 : 0.10,
+                400 : 0.00}
+
+# For 6061 T6
+stiff_red = { 20 : 1.00,
+              50 : 0.99,
+             100 : 0.97,
+             150 : 0.93,
+             200 : 0.86,
+             250 : 0.78,
+             300 : 0.68,
+             350 : 0.54,
+             400 : 0.40,
+             550 : 0.00}
 
 # MATERIAL USED
 mat = 'steel'
@@ -187,80 +210,82 @@ elif prot_type == 'fibcem_coating':
             dth_m = check
         else: dth_m = 0
 
+if __name__ == "__main__":
+    # ----------------------------------------------------------------------------------------------------------------------
+    # PLOTTING
+
+    # Protected case
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θg [C]'], name="θg"))
+    fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θm [C]'], name="θm"))
+    fig1.update_layout(
+        title="Unprotected Cross-Section",
+        xaxis_title="Time [min]",
+        yaxis_title="Temperature [C]")
+    fig1.show()
+
+    # Unprotected Case
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θg [C]'], name="θg"))
+    fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θm [C]'], name="θm"))
+    fig2.update_layout(
+        title="Protected Cross-Section",
+        xaxis_title="Time [min]",
+        yaxis_title="Temperature [C]")
+    fig2.show()
+
+    # Collected
+    fig3 = go.Figure()
+    fig3.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θg [C]'], name="Standard Fire Curve"))
+    fig3.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θm [C]'], name="Protected Member Temperature"))
+    fig3.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θm [C]'],
+                              name="Unprotected Member Temperature"))
+    fig3.update_layout(
+        title="Temperature-Time Curves",
+        xaxis_title="Time [min]",
+        yaxis_title="Temperature [C]")
+    fig3.show()
+
+    # Subplots
+    fig4 = make_subplots(rows=1, cols=2, shared_yaxes=True,
+                         subplot_titles=("Unprotected Cross-Section", "Protected Cross-Section"))
+
+    # Subplot 1
+    # Temperature range subplot / Nominal WTs
+    fig4.append_trace(go.Scatter(
+        x=results_unprot['Time [min]'],
+        y=results_unprot['θg [C]'],
+        mode='lines', line=dict(color="#636EFA"),
+        name='Standard Temperature Fire Curve'), row=1, col=1)
+
+    # Temperature range subplot / Calculated WTs
+    fig4.append_trace(go.Scatter(
+        x=results_unprot['Time [min]'],
+        y=results_unprot['θm [C]'],
+        mode='lines', line=dict(color="#636EFA", dash='dash'),
+        name='Protected Member Temperature'), row=1, col=1)
+
+    fig4.append_trace(go.Scatter(
+        x=results_prot['Time [min]'],
+        y=results_prot['θg [C]'],
+        mode='lines', line=dict(color="#EF553B"),
+        name='Standard Temperature Fire Curve'), row=1, col=2)
+
+    # Temperature range subplot / Calculated WTs
+    fig4.append_trace(go.Scatter(
+        x=results_prot['Time [min]'],
+        y=results_prot['θm [C]'],
+        mode='lines', line=dict(color="#EF553B", dash='dash'),
+        name='Unprotected Member Temperature'), row=1, col=2)
+
+    fig4['layout']['yaxis']['title'] = 'Temperature [C]'
+    fig4['layout']['xaxis']['title'] = 'Time [min]'
+    fig4['layout']['xaxis2']['title'] = 'Time [min]'
+    fig4.update_layout(title_text="Temperature-Time Curves")
+
+    fig4.show()
 # ----------------------------------------------------------------------------------------------------------------------
-# PLOTTING
-
-# Protected case
-fig1 = go.Figure()
-fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θg [C]'], name="θg"))
-fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θm [C]'], name="θm"))
-fig1.update_layout(
-    title="Unprotected Cross-Section",
-    xaxis_title="Time [min]",
-    yaxis_title="Temperature [C]")
-fig1.show()
-
-# Unprotected Case
-fig2 = go.Figure()
-fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θg [C]'], name="θg"))
-fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θm [C]'], name="θm"))
-fig2.update_layout(
-    title="Protected Cross-Section",
-    xaxis_title="Time [min]",
-    yaxis_title="Temperature [C]")
-fig2.show()
-
-# Collected
-fig3 = go.Figure()
-fig3.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θg [C]'], name="Standard Fire Curve"))
-fig3.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θm [C]'], name="Protected Member Temperature"))
-fig3.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θm [C]'],
-                          name="Unprotected Member Temperature"))
-fig3.update_layout(
-    title="Temperature-Time Curves",
-    xaxis_title="Time [min]",
-    yaxis_title="Temperature [C]")
-fig3.show()
-
-# Subplots
-fig4 = make_subplots(rows=1, cols=2, shared_yaxes=True,
-                     subplot_titles=("Unprotected Cross-Section", "Protected Cross-Section"))
-
-# Subplot 1
-# Temperature range subplot / Nominal WTs
-fig4.append_trace(go.Scatter(
-    x=results_unprot['Time [min]'],
-    y=results_unprot['θg [C]'],
-    mode='lines', line=dict(color="#636EFA"),
-    name='Standard Temperature Fire Curve'), row=1, col=1)
-
-# Temperature range subplot / Calculated WTs
-fig4.append_trace(go.Scatter(
-    x=results_unprot['Time [min]'],
-    y=results_unprot['θm [C]'],
-    mode='lines', line=dict(color="#636EFA", dash='dash'),
-    name='Protected Member Temperature'), row=1, col=1)
-
-fig4.append_trace(go.Scatter(
-    x=results_prot['Time [min]'],
-    y=results_prot['θg [C]'],
-    mode='lines', line=dict(color="#EF553B"),
-    name='Standard Temperature Fire Curve'), row=1, col=2)
-
-# Temperature range subplot / Calculated WTs
-fig4.append_trace(go.Scatter(
-    x=results_prot['Time [min]'],
-    y=results_prot['θm [C]'],
-    mode='lines', line=dict(color="#EF553B", dash='dash'),
-    name='Unprotected Member Temperature'), row=1, col=2)
-
-fig4['layout']['yaxis']['title'] = 'Temperature [C]'
-fig4['layout']['xaxis']['title'] = 'Time [min]'
-fig4['layout']['xaxis2']['title'] = 'Time [min]'
-fig4.update_layout(title_text="Temperature-Time Curves")
-
-fig4.show()
-# ----------------------------------------------------------------------------------------------------------------------
+temp = list(results_prot['θm [C]'])[-1]
 
 # Solution
 # Use Scamotek 225
