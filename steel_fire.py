@@ -34,11 +34,12 @@ else:
 CS = 'I'
 
 # I-type cross-section dimensions
-b = 180  # Flange width [mm]
-h = 400  # Web height [mm]
-tf = 13.5  # Flange thickness [mm]
-tw = 8.6  # Web thickness [mm]
+b = 86  # Flange width [mm]
+h = 160  # Web height [mm]
+tf = 5  # Flange thickness [mm]
+tw = 4  # Web thickness [mm]
 
+"""
 # CHS-type cross section dimensions
 d_out = 100  # Outer diameter [mm]
 t_chs = 13  # Wall thicknes [mm]
@@ -46,6 +47,7 @@ t_chs = 13  # Wall thicknes [mm]
 # SHS-type cross section dimensions
 b_out = 100  # Outer diameter [mm]
 t_shs = 13  # Wall thicknes [mm]
+"""
 
 # Protection coating type
 # prot_type = 'paint_coating'
@@ -56,12 +58,12 @@ if prot_type == 'paint_coating':
     dp_coat = 30  # Thickness [mm]
     l_p_coat = 0.25  # Thermal conductivity [W/m.K]
 elif prot_type == 'fibcem_coating':
-    dp = 20  # Thickness [mm]
-    hp = 400  # Protective board height [mm]
-    bp = 180  # Protective board width [mm]
-    l_p = 0.15  # Thermal conductivity [W/m.K]
-    c_p = 1200  # Specific heat
-    density_p = 800  # Protective board density [kg/m3]
+    dp = 80  # Thickness [mm]
+    hp = 160  # Protective board height [mm]
+    bp = 86  # Protective board width [mm]
+    l_p = 0.061  # Thermal conductivity [W/m.K]
+    c_p = 840  # Specific heat [J/kg.K]
+    density_p = 225  # Protective board density [kg/m3]
 
 # EMISSIVITY DATA
 ef = 1  # Emissivity of the fire
@@ -82,18 +84,15 @@ elif CS == 'SHS':
     ksh = 1  # Shadow effect correction factor for SHS cross section
 elif CS == 'I':
     A = 2 * b * tf + (h - 2 * tf) * tw  # Cross-sectional area for I-type cross section [mm2]
-    P = 2 * h + b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
+    P = 2 * h + 2 * b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
     Am_V = P / A  # Section factor for I-type cross section [m^-1]
-    Pb = 2 * h + b  # Heated perimeter of "box" for I-type cross section
+    Pb = 2 * h + 2 * b  # Heated perimeter of "box" for I-type cross section
     Am_Vb = Pb / A  # Section factor of "box" for I-type cross section [m^-1]
     ksh = min(0.9 * Am_Vb / Am_V, 1)  # Shadow effect correction factor for I-type cross section
 
 # Protective board geometrical dimensions
 if prot_type == 'fibcem_coating':
     Am_V_protb = (2 * hp + bp) / A
-
-    print('Am_V_protb =', Am_V_protb)
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # TEMPERATURE-TIME FIRE CURVES
@@ -147,8 +146,6 @@ for t in np.arange(0, t_min * 60, dt_sec):
     results_unprot = pd.DataFrame(step_results_unprot,
                                   columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
 
-# print(results_unprot)
-
 # ----------------------------------------------------------------------------------------------------------------------
 # ANALYSIS OF PROTECTED SECTION
 
@@ -189,8 +186,6 @@ elif prot_type == 'fibcem_coating':
         if check > 0:
             dth_m = check
         else: dth_m = 0
-
-print(results_prot)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PLOTTING
@@ -266,3 +261,7 @@ fig4.update_layout(title_text="Temperature-Time Curves")
 
 fig4.show()
 # ----------------------------------------------------------------------------------------------------------------------
+
+# Solution
+# Use Scamotek 225
+# Alloy 6061 T6
