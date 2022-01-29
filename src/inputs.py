@@ -1,5 +1,5 @@
 from scipy.constants import g
-# TODO: Properties under fire 65% of the original one - See "Fire.ipynb" notebook
+
 # BS EN 1999-1-1: 3.2.5 Design values of material constants
 E = 70e3 # N/mm2
 G = 27e3 # N/mm2
