@@ -15,8 +15,8 @@ import plotly.express as px
 # ----------------------------------------------------------------------------------------------------------------------
 # INPUT PARAMETERS
 # FIRE EVENT DURATION
-t_min = 120  # Fire duration [min]
-dt_sec = 30  # Time step [sec]
+t_min = 60  # Fire duration [min]
+dt_sec = 1  # Time step [sec]
 
 # MATERIAL USED
 mat = 'steel'
@@ -58,7 +58,7 @@ if prot_type == 'paint_coating':
     dp_coat = 30  # Thickness [mm]
     l_p_coat = 0.25  # Thermal conductivity [W/m.K]
 elif prot_type == 'fibcem_coating':
-    dp = 80  # Thickness [mm]
+    dp = 25  # Thickness [mm]
     hp = 160  # Protective board height [mm]
     bp = 86  # Protective board width [mm]
     l_p = 0.061  # Thermal conductivity [W/m.K]
