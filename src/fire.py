@@ -61,7 +61,6 @@ h = 160  # Web height [mm]
 tf = 5  # Flange thickness [mm]
 tw = 4  # Web thickness [mm]
 
-"""
 # CHS-type cross section dimensions
 d_out = 100  # Outer diameter [mm]
 t_chs = 13  # Wall thicknes [mm]
@@ -69,7 +68,6 @@ t_chs = 13  # Wall thicknes [mm]
 # SHS-type cross section dimensions
 b_out = 100  # Outer diameter [mm]
 t_shs = 13  # Wall thicknes [mm]
-"""
 
 # Protection coating type
 # prot_type = 'paint_coating'
@@ -80,10 +78,10 @@ if prot_type == 'paint_coating':
     dp_coat = 30  # Thickness [mm]
     l_p_coat = 0.25  # Thermal conductivity [W/m.K]
 elif prot_type == 'fibcem_coating':
-    dp = 26  # Thickness [mm]
-    l_p = 0.061  # Thermal conductivity [W/m.K]
-    c_p = 840  # Specific heat [J/kg.K]
-    density_p = 225  # Protective board density [kg/m3]
+    dp = 40  # Thickness [mm]
+    l_p = 0.036  # Thermal conductivity [W/m.K]
+    c_p = 0.65  # Specific heat [J/kg.K]
+    density_p = 115  # Protective board density [kg/m3]
 
 # EMISSIVITY DATA
 ef = 1  # Emissivity of the fire
@@ -104,7 +102,7 @@ def internal_curve(t):
 def external_curve(t):
     return 660 * (1 - 0.687 * np.e ** (-0.32 * t) - 0.313 * np.e ** (-3.8 * t)) + 20  # EN 1991-1-2 (2002), eqn.(3.5)
 
-fire_curve = external_curve
+fire_curve = internal_curve
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -117,9 +115,9 @@ elif CS == 'SHS':
     ksh = 1  # Shadow effect correction factor for SHS cross section
 elif CS == 'I':
     A = 2 * b * tf + (h - 2 * tf) * tw  # Cross-sectional area for I-type cross section [mm2]
-    P = 2 * h + 2 * b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
+    P = 2 * h + b + 2 * (b - tw)  # Heated perimeter for I-type cross section [mm]
     Am_V = P / A  # Section factor for I-type cross section [m^-1]
-    Pb = 2 * h + 2 * b  # Heated perimeter of "box" for I-type cross section
+    Pb = 2 * h +  b  # Heated perimeter of "box" for I-type cross section
     Am_Vb = Pb / A  # Section factor of "box" for I-type cross section [m^-1]
     ksh = min(0.9 * Am_Vb / Am_V, 1)  # Shadow effect correction factor for I-type cross section
 

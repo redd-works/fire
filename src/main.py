@@ -42,6 +42,7 @@ if __name__ == '__main__':
         E2 = fire.stiff_red[temp2]
         E_red = interpolation(temp_diff, temp1, temp2, E1, E2)
         E *= E_red
+    print(f_red)
 
     # OpenSees model
     ops.wipe()

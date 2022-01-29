@@ -33,7 +33,7 @@ w_self = A*10**-6 * rho * g / 1000 # kN/m3
 w_sdl = 0.1 # kN/m
 w_G = w_self + w_sdl
 w_Q = 4 # kPa
-pres = 1.1*(w_G*y_G + 0.1*w_Q*y_Q)*(10**-3) # N/mm2 - (kN/m2 = 10^-3N/mm2) - 10% safty factor
+pres = (w_G*y_G + 0.1*w_Q*y_Q)*(10**-3) # N/mm2 - (kN/m2 = 10^-3N/mm2) - 10% safty factor
 w = pres * Lx/2 # N/mm (= kN/m) - Uniformly distributed load
 
 
