@@ -42,8 +42,7 @@ stiff_red = { 20 : 1.00,
              550 : 0.00}
 
 # MATERIAL USED
-mat = 'steel'
-# mat = 'aluminum'
+mat = 'aluminum'
 
 if mat == 'steel':
     density = 7850  # Steel density [kg/m3]
@@ -81,9 +80,7 @@ if prot_type == 'paint_coating':
     dp_coat = 30  # Thickness [mm]
     l_p_coat = 0.25  # Thermal conductivity [W/m.K]
 elif prot_type == 'fibcem_coating':
-    dp = 25  # Thickness [mm]
-    hp = 160  # Protective board height [mm]
-    bp = 86  # Protective board width [mm]
+    dp = 26  # Thickness [mm]
     l_p = 0.061  # Thermal conductivity [W/m.K]
     c_p = 840  # Specific heat [J/kg.K]
     density_p = 225  # Protective board density [kg/m3]
@@ -95,6 +92,19 @@ phi = 1  # Configuration factor
 alpha_c = 25  # Coefficient of heat transfer by convection [W/m^2*K]
 sigma = 5.67 * 10 ** -8  # Stephan Boltzmann constant [W/m^2*K^4]
 th_ambient = 20  # Ambient temperature [C]
+
+# ----------------------------------------------------------------------------------------------------------------------
+# TEMPERATURE-TIME FIRE CURVES
+
+
+def internal_curve(t):
+    return 20 + 345 * np.log10(8 * t + 1)  # EN 1991-1-2, eqn.(3.4)
+
+
+def external_curve(t):
+    return 660 * (1 - 0.687 * np.e ** (-0.32 * t) - 0.313 * np.e ** (-3.8 * t)) + 20  # EN 1991-1-2 (2002), eqn.(3.5)
+
+fire_curve = external_curve
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -112,21 +122,6 @@ elif CS == 'I':
     Pb = 2 * h + 2 * b  # Heated perimeter of "box" for I-type cross section
     Am_Vb = Pb / A  # Section factor of "box" for I-type cross section [m^-1]
     ksh = min(0.9 * Am_Vb / Am_V, 1)  # Shadow effect correction factor for I-type cross section
-
-# Protective board geometrical dimensions
-if prot_type == 'fibcem_coating':
-    Am_V_protb = (2 * hp + bp) / A
-
-# ----------------------------------------------------------------------------------------------------------------------
-# TEMPERATURE-TIME FIRE CURVES
-
-
-def standard_curve(t):
-    return 20 + 345 * np.log10(8 * t + 1)  # EN 1991-1-2, eqn.(3.4)
-
-
-def external_curve(t):
-    return 660 * (1 - 0.687 * np.e ** (-0.32 * t) - 0.313 * np.e ** (-3.8 * t)) + 20  # EN 1991-1-2 (2002), eqn.(3.5)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -158,13 +153,13 @@ step_results_unprot = []
 
 for t in np.arange(0, t_min * 60, dt_sec):
     factor = ksh * Am_V * 1000 * dt_sec / (specific_heat(th_m) * density)
-    h_net_c = alpha_c * (standard_curve(t / 60) - th_m)
-    h_net_r = phi * ef * em * sigma * ((standard_curve(t / 60) + 273) ** 4 - (th_m + 273) ** 4)
+    h_net_c = alpha_c * (fire_curve(t / 60) - th_m)
+    h_net_r = phi * ef * em * sigma * ((fire_curve(t / 60) + 273) ** 4 - (th_m + 273) ** 4)
 
     th_m += dth_m
     dth_m = factor * (h_net_c + h_net_r)
 
-    step_results_unprot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m])
+    step_results_unprot.append([t, t / 60, fire_curve(t / 60), th_m, specific_heat(th_m), dth_m])
 
     results_unprot = pd.DataFrame(step_results_unprot,
                                   columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
@@ -182,9 +177,9 @@ if prot_type == 'paint_coating':
         th_m += dth_m
 
         dth_m = Am_V * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density) * (
-                standard_curve(t / 60) - th_m) * dt_sec
+                fire_curve(t / 60) - th_m) * dt_sec
 
-        step_results_prot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m])
+        step_results_prot.append([t, t / 60, fire_curve(t / 60), th_m, specific_heat(th_m), dth_m])
 
         results_prot = pd.DataFrame(step_results_prot,
                                     columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]'])
@@ -193,18 +188,18 @@ elif prot_type == 'fibcem_coating':
 
     for t in np.arange(0, t_min * 60, dt_sec):
 
-        phi_factor = c_p * density_p * dp * Am_V_protb / (specific_heat(th_m) * density)
+        phi_factor = c_p * density_p * dp * Am_Vb / (specific_heat(th_m) * density)
 
         th_m += dth_m
 
-        step_results_prot.append([t, t / 60, standard_curve(t / 60), th_m, specific_heat(th_m), dth_m, phi_factor])
+        step_results_prot.append([t, t / 60, fire_curve(t / 60), th_m, specific_heat(th_m), dth_m, phi_factor])
         results_prot = pd.DataFrame(step_results_prot,
                                     columns=['Time [sec]', 'Time [min]', 'θg [C]', 'θm [C]', 'c [J/kgC]', 'dθm [C]', 'φ'
                                              ])
 
-        check = Am_V_protb * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density * (1+phi_factor/3)) * \
-                (standard_curve(t / 60) - th_m) * dt_sec - (np.exp(phi_factor / 10) - 1) * \
-                (standard_curve(t / 60 + dt_sec / 60) - standard_curve(t / 60))
+        check = Am_Vb * 1000 * l_p / (dp * 10 ** -3 * specific_heat(th_m) * density * (1+phi_factor/3)) * \
+                (fire_curve(t / 60) - th_m) * dt_sec - (np.exp(phi_factor / 10) - 1) * \
+                (fire_curve(t / 60 + dt_sec / 60) - fire_curve(t / 60))
 
         if check > 0:
             dth_m = check

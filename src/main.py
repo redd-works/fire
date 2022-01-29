@@ -29,11 +29,16 @@ if __name__ == '__main__':
         temp1 = int(temp - temp%50)
         temp2 = temp1 + 50
         temp_diff = temp - temp1
-        f1 = fire.strength_red[temp1]
-        f2 = fire.strength_red[temp2]
-        f_red = interpolation(temp_diff, temp1, temp2, f1, f2)
+        if temp2 > 400:
+            f_red = 0
+        else:
+            f1 = fire.strength_red[temp1]
+            f2 = fire.strength_red[temp2]
+            f_red = interpolation(temp_diff, temp1, temp2, f1, f2)
         fy *= f_red
         E1 = fire.stiff_red[temp1]
+        if temp2 > 400:
+            temp2 = 550
         E2 = fire.stiff_red[temp2]
         E_red = interpolation(temp_diff, temp1, temp2, E1, E2)
         E *= E_red
