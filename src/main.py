@@ -1,7 +1,6 @@
 import openseespy.opensees as ops
 import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
-import sec_prop
 import argparse
 from inputs import *
 
