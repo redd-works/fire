@@ -1,0 +1,7 @@
+
+material elastic [
+    name = aluminium
+    rho = 2700   # desnity
+    E   = 70e10 # young's modulus
+    v   = 0.3    # poisson's ratio
+]
