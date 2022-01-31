@@ -2,6 +2,7 @@ import openseespy.opensees as ops
 import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
 import argparse
+import numpy as np
 from inputs import *
 import fire
 
@@ -42,7 +43,6 @@ if __name__ == '__main__':
         E2 = fire.stiff_red[temp2]
         E_red = interpolation(temp_diff, temp1, temp2, E1, E2)
         E *= E_red
-    print(f_red)
 
     # OpenSees model
     ops.wipe()
@@ -66,11 +66,18 @@ if __name__ == '__main__':
     Ew = {}
 
     Pz = w*Ly/n # N
+    Pv *= 1000 # N
+    if Pv*4 > Pz*Ly:
+        Pz = 0
+    else:
+        Pv = 0
 
     ops.timeSeries('Constant', 1)
     ops.pattern('Plain', 1, 1)
     for i in range(1, n+1):
-        ops.load(i, 0., 0., Pz, 0., 0., 0.)
+        ops.load(i, 0., 0., -Pz, 0., 0., 0.)
+        if i%(n/5) == 1 and i != n:
+            ops.load(i, 0., 0., -Pv, 0., 0., 0.)
 
     ops.constraints('Transformation')
     ops.numberer('RCM')
@@ -83,11 +90,13 @@ if __name__ == '__main__':
 
     ### Post-process
     disp = ops.nodeDisp(mid, 3)
-    disp_e = 5/384*(w*Ly**4)/(E*Iy)
+    disp_e = -5/384*((w+Pv*4/Ly)*Ly**4)/(E*Iy)
     print("Disp from fea: {:.3f} mm, hand calcs {:.3f} mm".format(disp, disp_e))
+    print("L/d = {:.3f}".format(Ly/disp))
     Myy = ops.eleForce(mid, 4)
-    stress = Myy*(h/2)/Iy
-    print("Stress utilization: {}".format(stress/fy))
+    stress = Myy*(h - centr)/Iy
+    print("Stress util: {:.3f}".format(stress/fy))
+    print("First frequency: {:.3f}".format(17.8/(np.abs(disp)**0.5)))
 
     if args.plot:
         minY, maxY = opsv.section_force_diagram_3d('Vy', Ew, 1.)
