@@ -1,9 +1,3 @@
-# STRUCTURAL ANALYSIS OF CROSS-SECTION SUBJECTED TO FIRE LOAD
-# ACCORDING TO BS EN 1991-1-2
-# AUTHOR: ELEFTHERIA TSALAMEGKA
-# DATE: 25/01/2022
-
-
 import math
 import numpy as np
 import pandas as pd
@@ -13,11 +7,8 @@ import plotly.graph_objs as go
 import plotly.express as px
 import argparse
 
-# ----------------------------------------------------------------------------------------------------------------------
-# INPUT PARAMETERS
-# FIRE EVENT DURATION
-t_min = 60  # Fire duration [min]
-dt_sec = 5  # Time step [sec]
+def temperature(t_min=60, dt_sec=5,
+
 
 # For 6061 T6
 strength_red = { 20 : 1.00,
@@ -279,7 +270,20 @@ if __name__ == "__main__":
     fig4.show()
 # ----------------------------------------------------------------------------------------------------------------------
 temp = list(results_prot['θm [C]'])[-1]
-
-# Solution
-# Use Scamotek 225
-# Alloy 6061 T6
+temp = fire.temp
+temp1 = int(temp - temp%50)
+temp2 = temp1 + 50
+temp_diff = temp - temp1
+if temp2 > 400:
+    f_red = 0
+else:
+    f1 = fire.strength_red[temp1]
+    f2 = fire.strength_red[temp2]
+    f_red = interpolation(temp_diff, temp1, temp2, f1, f2)
+fy *= f_red
+E1 = fire.stiff_red[temp1]
+if temp2 > 400:
+    temp2 = 550
+E2 = fire.stiff_red[temp2]
+E_red = interpolation(temp_diff, temp1, temp2, E1, E2)
+E *= E_red

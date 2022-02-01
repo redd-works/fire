@@ -1,4 +1,5 @@
 from scipy.constants import g
+import numpy as np
 
 # BS EN 1999-1-1: 3.2.5 Design values of material constants
 fy = 240 # MPa
@@ -42,7 +43,7 @@ w = pres * Lx/2 # N/mm (= kN/m) - Uniformly distributed load
 
 P_G = 1 # kN
 P_Q = 4.5 # kN
-Pv = P_G*y_G + P_Q*y_G
+P = P_G*y_G + P_Q*y_G
 
 if __name__ == '__main__':
     print(w/b*1000)
