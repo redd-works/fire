@@ -1,9 +1,8 @@
-from inputs import *
 import argparse
+import inputs as inp
 import fire
+import fem
 
-def interpolation(x, x1, x2, y1, y2):
-    return y1 + (y2-y1)/(x2-x1)*x
 
 
 if __name__ == '__main__':
@@ -21,5 +20,18 @@ if __name__ == '__main__':
               ' True/False'), default=False)
     args = parser.parse_args()
 
+    
+    fy, E = inp.fy, inp.E
     if args.fire:
+        fy, E = fire.temperature(plot=args.plot)
+
+    fem.model(fy=fy, E=E, plot=args.plot)  
+
+
+
+
+
+
+
+    
 

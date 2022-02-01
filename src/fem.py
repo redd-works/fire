@@ -1,11 +1,13 @@
+import numpy as np
 import openseespy.opensees as ops
 import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
-from inputs import *
+import inputs as inp
 
-def model(w, P,
-          n=10, L=2770,
-          E=70e3, G=27e3, A=2060, Iy=7135891.91, Iz=1415406.67, J=10366, centr=76.46,
+def model(w=inp.w, P=inp.P,
+          n=inp.n, L=inp.Ly,
+          fy=inp.fy, E=inp.E, G=inp.G, 
+          A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h,
           plot=False):  
 
     # OpenSees model
