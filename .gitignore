@@ -2,4 +2,4 @@
 *.swp
 *.3dmbak
 __pycache__/
-
+*~
