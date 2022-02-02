@@ -1,6 +1,6 @@
 import numpy as np
 import openseespy.opensees as ops
-import openseespy.postprocessing.ops_vis as opsv
+#import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
 import inputs as inp
 
@@ -63,6 +63,7 @@ def model(w=inp.w, P=inp.P,
     print("Stress util: {:.3f}".format(stress/fy))
     print("First frequency: {:.3f}".format(17.8/(np.abs(disp)**0.5)))
 
+    """
     if plot:
         minY, maxY = opsv.section_force_diagram_3d('Vy', Ew, 1.)
         plt.title(f'Transverse force Vy [N], max = {maxY:.2e}, min {minY:.2e}')
@@ -71,6 +72,7 @@ def model(w=inp.w, P=inp.P,
         plt.title(f'Bending moments Mz [Nmm], max = {maxY:.2e}, min {minY:.2e}')
 
         plt.show()
+    """
 
 if __name__ == "__main__":
     model(w, P)
