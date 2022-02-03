@@ -18,16 +18,16 @@ A = 2060 # mm2
 Iy = 7135891.91 # mm4
 Iz = 1415406.67 # mm4
 J = 10366 # mm4
-centr = 76.46
+centr = 76
 
 # Span
-Lx = 650 # mm - Span of step
-Ly = 2770. # mm - Main span
+Lx = 780 # mm - Span of step
+Ly = 2800 # mm - Main span
 
 # Number of elements
 n = 10
 
-p_sdl = 0.5 # kPa
+p_sdl = 0.35 # kPa
 p_Q = 4 # kPa
 
 P_G = 1 # kN
@@ -36,15 +36,17 @@ P_Q = 4 # kN
 
 def loads(y_G, y_Q, psi,
         p_sdl=p_sdl,p_Q=p_Q, P_G=P_G, P_Q=P_Q,
+        dp=40, density_p=115, l_p=400,
         Lx=Lx, A=A, rho=rho):
 
+    w_prot = dp * l_p * density_p * g / 1e9
     w_self = A*10**-6 * rho * g / 1000 # kN/m
     w_sdl = p_sdl * Lx / 2 / 1000
-    w_G = w_self + w_sdl
+    w_G = w_self + w_prot + w_sdl
     w_Q = p_Q * Lx / 2 / 1000
 
     w = (w_G*y_G + psi*w_Q*y_Q)
-    P = P_G*y_G + psi*P_Q*y_G
+    P = (P_G*y_G + psi*P_Q*y_G) * 1000
     return w, P
 
 

@@ -4,10 +4,11 @@ import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
 import inputs as inp
 
-def model(w, P,
-          n=inp.n, L=inp.Ly,
-          fy=inp.fy, E=inp.E, G=inp.G, 
-          A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h):  
+def run(w, P,
+        n=inp.n, L=inp.Ly,
+        fy=inp.fy, E=inp.E, G=inp.G, 
+        A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h,
+        plot=False):  
 
     # OpenSees model
     ops.wipe()
@@ -28,9 +29,7 @@ def model(w, P,
         ops.element('elasticBeamColumn', i, i, i+1, A, E, G, J, Iz, Iy, gTTagy)
 
     Ew = {}
-
     Pz = w*L/n # N
-    P *= 1000 # N
 
     ops.timeSeries('Constant', 1)
     ops.pattern('Plain', 1, 1)
@@ -46,6 +45,15 @@ def model(w, P,
     ops.integrator('LoadControl', 1)
     ops.analysis('Static')
     ops.analyze(1)
+
+    if plot:
+        minY, maxY = opsv.section_force_diagram_3d('Vy', Ew, 1.)
+        plt.title(f'Transverse force Vy [N], max = {maxY:.2e}, min {minY:.2e}')
+
+        minY, maxY = opsv.section_force_diagram_3d('Mz', Ew, 1.)
+        plt.title(f'Bending moments Mz [Nmm], max = {maxY:.2e}, min {minY:.2e}')
+
+        plt.show()
 
 
 if __name__ == "__main__":

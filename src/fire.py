@@ -199,7 +199,7 @@ def temperature(fy=inp.fy, E = inp.E,
             x=results_unprot['Time [min]'],
             y=results_unprot['θm [C]'],
             mode='lines', line=dict(color="#636EFA", dash='dash'),
-            name='Protected Member Temperature'), row=1, col=1)
+            name='Unprotected Member Temperature'), row=1, col=1)
 
         fig4.append_trace(go.Scatter(
             x=results_prot['Time [min]'],
@@ -212,7 +212,7 @@ def temperature(fy=inp.fy, E = inp.E,
             x=results_prot['Time [min]'],
             y=results_prot['θm [C]'],
             mode='lines', line=dict(color="#EF553B", dash='dash'),
-            name='Unprotected Member Temperature'), row=1, col=2)
+            name='Protected Member Temperature'), row=1, col=2)
 
         fig4['layout']['yaxis']['title'] = 'Temperature [C]'
         fig4['layout']['xaxis']['title'] = 'Time [min]'
