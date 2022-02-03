@@ -4,17 +4,15 @@ import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
 import inputs as inp
 
-def model(w=inp.w, P=inp.P,
-          n=inp.n, L=inp.Ly,
+def model(w, P,
+          n=inp.n, L=inp.L,
           fy=inp.fy, E=inp.E, G=inp.G, 
-          A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h,
-          plot=False):  
+          A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h):  
 
     # OpenSees model
     ops.wipe()
     ops.model('basic', '-ndm', 3, '-ndf', 6)
 
-    mid = int(n/2)+1
     for i in range(n+1):
         ops.node(i+1, 0., i*L/n, 0.)
 
@@ -49,24 +47,6 @@ def model(w=inp.w, P=inp.P,
     ops.analysis('Static')
     ops.analyze(1)
 
-    ### Post-process
-    disp = ops.nodeDisp(mid, 3)
-    disp_e = -5/384*((w+P*4/L)*L**4)/(E*Iy)
-    print("Disp from fea: {:.3f} mm, hand calcs {:.3f} mm".format(disp, disp_e))
-    print("L/d = {:.3f}".format(L/disp))
-    Myy = ops.eleForce(mid, 4)
-    stress = Myy*(h - centr)/Iy
-    print("Stress util: {:.3f}".format(stress/fy))
-    print("First frequency: {:.3f}".format(17.8/(np.abs(disp)**0.5)))
-
-    if plot:
-        minY, maxY = opsv.section_force_diagram_3d('Vy', Ew, 1.)
-        plt.title(f'Transverse force Vy [N], max = {maxY:.2e}, min {minY:.2e}')
-
-        minY, maxY = opsv.section_force_diagram_3d('Mz', Ew, 1.)
-        plt.title(f'Bending moments Mz [Nmm], max = {maxY:.2e}, min {minY:.2e}')
-
-        plt.show()
 
 if __name__ == "__main__":
     model(w, P)

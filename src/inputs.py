@@ -1,5 +1,4 @@
 from scipy.constants import g
-import numpy as np
 
 # BS EN 1999-1-1: 3.2.5 Design values of material constants
 fy = 240 # MPa
@@ -23,30 +22,42 @@ centr = 76.46
 
 # Span
 Lx = 650 # mm - Span of step
-Ly = 2770. # mm - Main span
+L = 2770. # mm - Main span
 
 # Number of elements
 n = 20
 
-# Loads
-y_G = 1.35
-y_Q = 1.5
-
 p_sdl = 0.5 # kPa
 p_Q = 4 # kPa
 
-w_self = A*10**-6 * rho * g / 1000 # kN/m
-w_sdl = p_sdl*Lx / 2 / 1000
-w_G = w_self + w_sdl
-
-w_Q = p_Q * Lx / 2 / 1000
-w = (w_G*y_G + w_Q*y_Q) # kN/m - N/mm - UDL
-
-P_G = 0.2 # kN
+P_G = 1 # kN
 P_Q = 4 # kN
-P = P_G*y_G + P_Q*y_G
 
-if __name__ == '__main__':
-    print(w_G, w_Q, w)
 
+def loads(y_G, y_Q, psi,
+        p_sdl=p_sdl,p_Q=p_Q, P_G=P_G, P_Q=P_Q,
+        Lx=Lx, A=A, rho=rho):
+
+    w_self = A*10**-6 * rho * g / 1000 # kN/m
+    w_sdl = p_sdl * Lx / 2 / 1000
+    w_G = w_self + w_sdl
+    w_Q = p_Q * Lx / 2 / 1000
+
+    w = (w_G*y_G + psi*w_Q*y_Q)
+    P = P_G*y_G + psi*P_Q*y_G
+    return w, P
+
+
+def sec_I(h, b, tf, tw):
+    # :params
+    #     h: full depth
+    #     b: width
+    #     tf: flange thickness
+    #     tw: web thickness
+    # :return: Area, Iyy, Izz
+    A = 3*b*tf + (h - 2*tf)*tw
+    Iyy = ((h - 2*tf)**3*tw/12 + 2*b*tf**3/12 + 2*tf*b*((h - tf)/2)**2)
+    Izz = 2*tf*b**3/12 + (h - 2*tf)*tw**3/12
+    J = 1/3*(2*b*tf**3 + (h-2*tf)*tw**3)
+    return A, Iyy, Izz, J
 
