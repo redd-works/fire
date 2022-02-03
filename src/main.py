@@ -31,6 +31,7 @@ if __name__ == '__main__':
     if args.load == 'sls':
         w = sls.w
         P = sls.P
+        print(w, P)
     else:
         w = uls.w
         P = uls.P

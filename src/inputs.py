@@ -26,7 +26,7 @@ Lx = 650 # mm - Span of step
 Ly = 2770. # mm - Main span
 
 # Number of elements
-n = 10
+n = 20
 
 # Loads
 y_G = 1.35
