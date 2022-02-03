@@ -22,10 +22,10 @@ centr = 76.46
 
 # Span
 Lx = 650 # mm - Span of step
-L = 2770. # mm - Main span
+Ly = 2770. # mm - Main span
 
 # Number of elements
-n = 20
+n = 10
 
 p_sdl = 0.5 # kPa
 p_Q = 4 # kPa

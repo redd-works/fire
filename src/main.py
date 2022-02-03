@@ -34,14 +34,16 @@ if __name__ == '__main__':
         w, P = inp.loads(1.35, 1.5, 0.1)
         fy, E = fire.temperature(plot=args.plot)
 
+    print(w, P)
     sees.model(w=w, P=P, fy=fy, E=E)  
 
     ### Post-process
     mid = int(inp.n/2)+1
     disp = ops.nodeDisp(mid, 3)
-    disp_e = -5/384*((w+P*4/inp.L)*inp.L**4)/(E*inp.Iy)
+    print(w, P)
+    disp_e = -5/384*((w+P*4/inp.Ly)*inp.Ly**4)/(E*inp.Iy)
     print("Disp from fea: {:.3f} mm, hand calcs {:.3f} mm".format(disp, disp_e))
-    print("L/d = {:.3f}".format(-inp.L/disp))
+    print("L/d = {:.3f}".format(-inp.Ly/disp))
     Myy = ops.eleForce(mid, 4)
     stress = Myy*(inp.h - inp.centr)/inp.Iy
     print("Stress util: {:.3f}".format(-stress/inp.fy))

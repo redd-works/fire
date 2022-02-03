@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import inputs as inp
 
 def model(w, P,
-          n=inp.n, L=inp.L,
+          n=inp.n, L=inp.Ly,
           fy=inp.fy, E=inp.E, G=inp.G, 
           A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h):  
 
