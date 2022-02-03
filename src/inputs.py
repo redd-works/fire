@@ -31,21 +31,22 @@ n = 10
 # Loads
 y_G = 1.35
 y_Q = 1.5
-y_G = 1.0
-y_Q = 1.0
 
-w_self = A*10**-6 * rho * g / 1000 # kPa
-w_sdl = 0.5 # kPa
+p_sdl = 0.5 # kPa
+p_Q = 4 # kPa
+
+w_self = A*10**-6 * rho * g / 1000 # kN/m
+w_sdl = p_sdl*Lx / 2 / 1000
 w_G = w_self + w_sdl
-w_Q = 7 # kPa
-pres = (w_G*y_G + w_Q*y_Q)*(10**-3) # N/mm2 - (kN/m2 = 10^-3N/mm2) - 10% safty factor
-w = pres * Lx/2 # N/mm (= kN/m) - Uniformly distributed load
 
-P_G = 1 # kN
-P_Q = 4.5 # kN
+w_Q = p_Q * Lx / 2 / 1000
+w = (w_G*y_G + w_Q*y_Q) # kN/m - N/mm - UDL
+
+P_G = 0.2 # kN
+P_Q = 4 # kN
 P = P_G*y_G + P_Q*y_G
 
 if __name__ == '__main__':
-    print(w/b*1000)
+    print(w_G, w_Q, w)
 
 
