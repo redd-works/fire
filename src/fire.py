@@ -150,7 +150,7 @@ def temperature(fy=inp.fy, E = inp.E,
             else: dth_m = 0
 
     if plot:
-        # Protected case
+        # Unprotected case
         fig1 = go.Figure()
         fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θg [C]'], name="θg"))
         fig1.add_trace(go.Scatter(x=results_unprot['Time [min]'], y=results_unprot['θm [C]'], name="θm"))
@@ -160,7 +160,7 @@ def temperature(fy=inp.fy, E = inp.E,
             yaxis_title="Temperature [C]")
         fig1.show()
 
-        # Unprotected Case
+        # Protected Case
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θg [C]'], name="θg"))
         fig2.add_trace(go.Scatter(x=results_prot['Time [min]'], y=results_prot['θm [C]'], name="θm"))
