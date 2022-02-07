@@ -57,7 +57,10 @@ def internal_curve(t):
 
     """
     return 20 + 345 * np.log10(8 * t + 1)  # EN 1991-1-2, eqn.(3.4)
-
+  
+def test_internal_curve():
+    y = internal_curve(5)
+    assert y == 576.409
 
 def external_curve(t):
     """
@@ -68,6 +71,13 @@ def external_curve(t):
 
     """
     return 660 * (1 - 0.687 * np.e ** (-0.32 * t) - 0.313 * np.e ** (-3.8 * t)) + 20  # EN 1991-1-2 (2002), eqn.(3.5)
+
+def test_external_curve():
+  z = external_curve(5)
+  assert z == 588.456
+
+th_ambient=20
+th_m = th_ambient
 
 
 def specific_heat(mat, t):
@@ -90,10 +100,17 @@ def specific_heat(mat, t):
     else:
         c = 0.41 * t + 903  # J/kg C - Specific heat of aluminium - 3.3.1.2
     return c
+  
+def test_specific_heat():
+    n = specific_heat('steel',5)
+    assert n == 440.4178
+    
 
-val = inp.chooseSection()
-th_ambient=20
-th_m = th_ambient
+#val = inp.chooseSection() # for testing
+val =0; # for testing
+
+
+
 
 
 def temperature(fy=inp.getFy(val), E = inp.getE(val),
