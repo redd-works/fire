@@ -1,4 +1,13 @@
+""" 
+INPUT_STEEL.PY DOCUMENTATION
 
+-----------------
+
+Input_steel.py sets up the method required in order to read the steel_section.xlsx file, 
+along with 2 other methods to calculate factored loads (loads) and section properties (sec_I).
+Different materials can be added to steel_section.xlsx.
+
+"""
 
 from scipy.constants import g
 import pandas as pd
@@ -14,6 +23,16 @@ dict_steel_sect = df.to_dict('index') # Transform data frame to dictionary
 
 def chooseSection():  # the following method allows the user to choose a certain 
                         # section for the program to run calculations on.
+          
+    """ 
+    This method will allow the user to select the sections he wishes to test, 
+    it does so by converting the excel file into a dictionary and then asking for user input. 
+    It will return the index of the chosen section in the dictionary.
+
+    :return name: val
+    :return type: int
+
+    """
     print(yaml.dump(dict_steel_sect, sort_keys=False, default_flow_style=False))  
     val = int(input("Pick Section: \n"))
     print(yaml.dump(dict_steel_sect[val], sort_keys=False, default_flow_style=False))
@@ -95,6 +114,18 @@ def loads(rho, y_G, y_Q, psi,  # calculate loads placed on section
        p_sdl=p_sdl,p_Q=p_Q, P_G=P_G, P_Q=P_Q,
         dp=40, density_p=115, l_p=400,
         Lx=Lx, A=A):
+     
+     
+     
+    """ 
+
+    Calculate factored loads.
+
+    :return name: w: distributed load,
+                  P: Point load
+
+
+    """
 
     w_prot = dp * l_p * density_p * g / 1e9
     w_self = A*10**-6 * rho * g / 1000 # kN/m
@@ -107,6 +138,8 @@ def loads(rho, y_G, y_Q, psi,  # calculate loads placed on section
     return w, P
 
 
+
+
 def sec_I(h, b, tf, tw):  # calculate section properties
     # :params
     #     h: full depth
@@ -114,6 +147,21 @@ def sec_I(h, b, tf, tw):  # calculate section properties
     #     tf: flange thickness
     #     tw: web thickness
     # :return: Area, Iyy, Izz
+     
+     
+    """ 
+
+    Calculate section properties
+    :parameters: h: depth of section,
+                 b: width of section,
+                 tw: web thickness,
+                 tf: flange thickness
+
+    :return name: A: area (mm2),
+                  Iyy : 2nd moment of inertia about y axis,
+                  Izz : 2nd moment of inertia about z axis,
+                  J: radius of gyration
+    """
     A = 3*b*tf + (h - 2*tf)*tw
     Iyy = ((h - 2*tf)**3*tw/12 + 2*b*tf**3/12 + 2*tf*b*((h - tf)/2)**2)
     Izz = 2*tf*b**3/12 + (h - 2*tf)*tw**3/12
