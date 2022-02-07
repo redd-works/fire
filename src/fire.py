@@ -41,7 +41,11 @@ stiff_red = { 20 : 1.00,
              550 : 0.00}
 
 def interpolation(x, x1, x2, y1, y2):
-    return y1 + (y2-y1)/(x2-x1)*x
+    return y1 + (y2-y1)/(x2-x1)*(x-x1)
+  
+def test_interpolation():
+    x = interpolation(10,5,15,5,15)
+    assert x == 10
 
 
 def internal_curve(t):
