@@ -9,6 +9,12 @@ def run(w, P,
         fy=inp.fy, E=inp.E, G=inp.G, 
         A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h,
         plot=False):  
+        
+        
+    """
+    Plot shear and moment diagrams
+
+    """
 
     # OpenSees model
     ops.wipe()
