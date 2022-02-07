@@ -41,17 +41,17 @@ if __name__ == '__main__':
 
 
     if args.load == 'sls':  # calculate loads based on load case
-        w, P = inp.loads(rho = inp.getRho(value),1., 1., 1., P_Q=0)
+        w, P = inp.loads(1., 1., 1., P_Q=0, rho = inp.getRho(value))
     elif args.load == 'dyn':
-        w, P = inp.loads(rho = inp.getRho(value),1., 1., 0.1)
+        w, P = inp.loads(1., 1., 0.1, rho = inp.getRho(value))
     else:
-        w, P = inp.loads(rho = inp.getRho(value),1.35, 1.5, 1.)
+        w, P = inp.loads(1.35, 1.5, 1., rho = inp.getRho(value))
 
 
 
     fy, E = inp.getFy(value), inp.getE(value)  # get Fy and E of chosen section
     if args.fire:                               # calculate fire loads
-        w, P = inp.loads(rho = inp.getRho(value),1.35, 1.5, 0.1)
+        w, P = inp.loads(1.35, 1.5, 0.1, rho = inp.getRho(value))
         fy, E = fire.temperature(fy=inp.getFy(value), E = inp.getE(value),t_min=120, mat=inp.getType(value),
                                     b=inp.getB(value), h=inp.getH(value), tf=inp.getTf(value), tw=inp.getTw(value),plot=args.plot)
 
