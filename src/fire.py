@@ -1,3 +1,13 @@
+"""
+FIRE.PY DOCUMENTATION
+
+-----------------------
+
+Fire.py will ask the user to select the desired steel section and perform calculation for the protected and unprotected section and finally plot different curves related to the performance of the section under a fire load.
+
+"""
+
+
 import math
 import numpy as np
 import pandas as pd
@@ -35,14 +45,35 @@ def interpolation(x, x1, x2, y1, y2):
 
 
 def internal_curve(t):
+    """
+    Standard Temperature-Time curve
+
+    :parameters:: t: time
+    :return name: gas temperature in fire compartment
+
+    """
     return 20 + 345 * np.log10(8 * t + 1)  # EN 1991-1-2, eqn.(3.4)
 
 
 def external_curve(t):
+    """
+    External fire curve
+
+    :parameters: t: time
+    :return name: gas temperature near member
+
+    """
     return 660 * (1 - 0.687 * np.e ** (-0.32 * t) - 0.313 * np.e ** (-3.8 * t)) + 20  # EN 1991-1-2 (2002), eqn.(3.5)
 
 
 def specific_heat(mat, t):
+    """
+
+    :parameters: t: time,
+                 mat: material chosen
+
+    """
+  
     if mat == 'steel':
         if th_m <= 600:
             c = 425 + 7.73 * 10 ** -1 * th_m - 1.69 * 10 ** -3 * t ** 2 + 2.22 * 10 ** -6 * t ** 3
@@ -67,7 +98,10 @@ def temperature(fy=inp.getFy(val), E = inp.getE(val),
                 prot_type='fibcem_coating', dp=40, l_p=0.036, c_p=0.65, density_p=115,
                 ef=1, em=0.8, phi=1, alpha_c=25, sigma=5.67e-8, th_ambient=20,
                 fire_curve=internal_curve, plot=False):
+    """
+    Plot performance of protected and unprotected section under fire.
 
+    """
     if mat == 'steel':
         density = 7850  # Steel density [kg/m3]
         
