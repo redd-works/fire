@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Welcome to REDD-Fire’s documentation! &#8212; REDD-Fire  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-fire">
+<span id="welcome-to-redd-fire-s-documentation"></span><h1>Welcome to REDD-Fire’s documentation!<a class="headerlink" href="#module-fire" title="Permalink to this headline">¶</a></h1>
+<p>FIRE.PY DOCUMENTATION</p>
+<hr class="docutils" />
+<p>Fire.py will ask the user to select the desired steel section and perform calculation for the protected and unprotected section and finally plot different curves related to the performance of the section under a fire load.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fire.external_curve">
+<span class="sig-prename descclassname"><span class="pre">fire.</span></span><span class="sig-name descname"><span class="pre">external_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fire.external_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>External fire curve</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>t: time</p>
+</dd>
+<dt class="field-even">Return name</dt>
+<dd class="field-even"><p>gas temperature near member</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fire.internal_curve">
+<span class="sig-prename descclassname"><span class="pre">fire.</span></span><span class="sig-name descname"><span class="pre">internal_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fire.internal_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard Temperature-Time curve</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters:</dt>
+<dd class="field-odd"><p>t: time</p>
+</dd>
+<dt class="field-even">Return name</dt>
+<dd class="field-even"><p>gas temperature in fire compartment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fire.specific_heat">
+<span class="sig-prename descclassname"><span class="pre">fire.</span></span><span class="sig-name descname"><span class="pre">specific_heat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fire.specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>t: time,
+mat: material chosen</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fire.temperature">
+<span class="sig-prename descclassname"><span class="pre">fire.</span></span><span class="sig-name descname"><span class="pre">temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fy=340</span></em>, <em class="sig-param"><span class="pre">E=205000</span></em>, <em class="sig-param"><span class="pre">t_min=60</span></em>, <em class="sig-param"><span class="pre">dt_sec=5</span></em>, <em class="sig-param"><span class="pre">mat='steel'</span></em>, <em class="sig-param"><span class="pre">CS='I'</span></em>, <em class="sig-param"><span class="pre">b=100</span></em>, <em class="sig-param"><span class="pre">h=160</span></em>, <em class="sig-param"><span class="pre">tf=5</span></em>, <em class="sig-param"><span class="pre">tw=4</span></em>, <em class="sig-param"><span class="pre">Am_Vb=0</span></em>, <em class="sig-param"><span class="pre">ksh=1</span></em>, <em class="sig-param"><span class="pre">prot_type='fibcem_coating'</span></em>, <em class="sig-param"><span class="pre">dp=40</span></em>, <em class="sig-param"><span class="pre">l_p=0.036</span></em>, <em class="sig-param"><span class="pre">c_p=0.65</span></em>, <em class="sig-param"><span class="pre">density_p=115</span></em>, <em class="sig-param"><span class="pre">ef=1</span></em>, <em class="sig-param"><span class="pre">em=0.8</span></em>, <em class="sig-param"><span class="pre">phi=1</span></em>, <em class="sig-param"><span class="pre">alpha_c=25</span></em>, <em class="sig-param"><span class="pre">sigma=5.67e-08</span></em>, <em class="sig-param"><span class="pre">th_ambient=20</span></em>, <em class="sig-param"><span class="pre">fire_curve=&lt;function</span> <span class="pre">internal_curve&gt;</span></em>, <em class="sig-param"><span class="pre">plot=False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fire.temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot performance of protected and unprotected section under fire.</p>
+</dd></dl>
+
+<span class="target" id="module-input_steel"></span><p>INPUT_STEEL.PY DOCUMENTATION</p>
+<hr class="docutils" />
+<p>Input_steel.py sets up the method required in order to read the steel_section.xlsx file, 
+along with 2 other methods to calculate factored loads (loads) and section properties (sec_I).
+Different materials can be added to steel_section.xlsx.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="input_steel.chooseSection">
+<span class="sig-prename descclassname"><span class="pre">input_steel.</span></span><span class="sig-name descname"><span class="pre">chooseSection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#input_steel.chooseSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method will allow the user to select the sections he wishes to test, 
+it does so by converting the excel file into a dictionary and then asking for user input. 
+It will return the index of the chosen section in the dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return name</dt>
+<dd class="field-odd"><p>val</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_steel.loads">
+<span class="sig-prename descclassname"><span class="pre">input_steel.</span></span><span class="sig-name descname"><span class="pre">loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_sdl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_Q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P_G</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P_Q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">115</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">780</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2060</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_steel.loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate factored loads.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return name</dt>
+<dd class="field-odd"><p>w: distributed load,
+P: Point load</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="input_steel.sec_I">
+<span class="sig-prename descclassname"><span class="pre">input_steel.</span></span><span class="sig-name descname"><span class="pre">sec_I</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#input_steel.sec_I" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate section properties</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p>h: depth of section,
+b: width of section,
+tw: web thickness,
+tf: flange thickness</p>
+</dd>
+<dt class="field-even">Return name</dt>
+<dd class="field-even"><p>A: area (mm2),
+Iyy : 2nd moment of inertia about y axis,
+Izz : 2nd moment of inertia about z axis,
+J: radius of gyration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">REDD-Fire</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, REDD.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
