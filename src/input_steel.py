@@ -38,7 +38,7 @@ def chooseSection():  # the following method allows the user to choose a certain
     print(yaml.dump(dict_steel_sect[val], sort_keys=False, default_flow_style=False))
     return val
 
-val = chooseSection() # for testing purposes
+#val = chooseSection() # for testing purposes
 
 
 # BS EN 1999-1-1: 3.2.5 Design values of material constants
@@ -167,5 +167,33 @@ def sec_I(h, b, tf, tw):  # calculate section properties
     Izz = 2*tf*b**3/12 + (h - 2*tf)*tw**3/12
     J = 1/3*(2*b*tf**3 + (h-2*tf)*tw**3)
     return A, Iyy, Izz, J
+
+
+
+def test_sec_I_A():
+
+    a1, a2, a3, a4 = sec_I(406.6,143.3,12.9,7.9) 
+
+    assert a1 == 67.9
+
+
+def test_sec_I_Iyy():
+
+    a1, a2, a3, a4 = sec_I(406.6,143.3,12.9,7.9) 
+
+    assert a2 == 18300
+
+
+def test_sec_I_Izz():
+
+    a1, a2, a3, a4 = sec_I(406.6,143.3,12.9,7.9) 
+
+    assert a3 == 635
+
+def test_sec_I_J():
+
+    a1, a2, a3, a4 = sec_I(406.6,143.3,12.9,7.9) 
+
+    assert a4 == 29
 
 #print(sec_I(h,b,tf,tw))
