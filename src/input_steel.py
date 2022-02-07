@@ -160,7 +160,7 @@ def sec_I(h, b, tf, tw):  # calculate section properties
     :return name: A: area (mm2),
                   Iyy : 2nd moment of inertia about y axis,
                   Izz : 2nd moment of inertia about z axis,
-                  J: radius of gyration
+                  J: Torisonal constant
     """
     A = 3*b*tf + (h - 2*tf)*tw
     Iyy = ((h - 2*tf)**3*tw/12 + 2*b*tf**3/12 + 2*tf*b*((h - tf)/2)**2)
