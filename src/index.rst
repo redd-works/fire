@@ -15,6 +15,9 @@ Welcome to REDD-Fire's documentation!
 .. automodule:: main
   :members:
 
+.. automodule:: model
+  :members:
+
 
 
 .. toctree::
