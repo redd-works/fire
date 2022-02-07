@@ -1,3 +1,14 @@
+"""
+MAIN.PY DOCUMENTATION
+
+------------------------
+
+In main.py, fire.py will be executed and calculations will be made depending on the loading condition.
+
+
+"""
+
+
 import input_steel as inp   
 import argparse
 import fire
