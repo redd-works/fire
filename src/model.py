@@ -4,11 +4,15 @@ import openseespy.postprocessing.ops_vis as opsv
 import matplotlib.pyplot as plt
 import inputs as inp
 
+sec_num = inp.chooseSection()
+
 def run(w, P,
         n=inp.n, L=inp.Ly,
-        fy=inp.fy, E=inp.E, G=inp.G, 
-        A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.h,
+        fy=inp.getFy(sec_num), E=inp.getE(sec_num), G=inp.getG(sec_num), 
+        A=inp.A, Iy=inp.Iy, Iz=inp.Iz, J=inp.J, centr=inp.centr, h=inp.getH(sec_num),
         plot=False):  
+    
+    
         
         
     """
