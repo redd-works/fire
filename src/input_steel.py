@@ -110,7 +110,7 @@ P_G = 1 # kN
 P_Q = 4 # kN
 
 
-def loads(rho, y_G, y_Q, psi,  # calculate loads placed on section
+def loads(y_G, y_Q, psi, rho,                          # calculate loads placed on section
        p_sdl=p_sdl,p_Q=p_Q, P_G=P_G, P_Q=P_Q,
         dp=40, density_p=115, l_p=400,
         Lx=Lx, A=A):
